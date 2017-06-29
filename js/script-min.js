@@ -1,0 +1,1 @@
+var canvas=document.getElementById("myCavas"),ctx=canvas.getContext("2d");
