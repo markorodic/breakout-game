@@ -19,6 +19,8 @@ var brickPadding = 10
 var brickOffsetTop = 30
 var brickOffsetLeft = 30
 
+var score = 0
+
 var bricks = []
 for(c = 0; c < brickColumnCount; c++) {
 	bricks[c] = []
@@ -26,31 +28,6 @@ for(c = 0; c < brickColumnCount; c++) {
 		bricks[c][r] = { x: 0, y: 0, status: 1 }
 	}
 }
-
-function hasAudio() {
-  var audio = document.createElement('audio');
-  if (audio && audio.canPlayType) {
-    var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"'),
-        mp3 = audio.canPlayType('audio/mpeg;'),
-        wav = audio.canPlayType('audio/wav; codecs="1"');
-    return {
-      ogg: (ogg === 'probably') || (ogg === 'maybe'),
-      mp3: (mp3 === 'probably') || (mp3 === 'maybe'),
-      wav: (wav === 'probably') || (wav === 'maybe')
-    };
-  }
-  return false;
-}
-
-function createAudio(src, options) {
-	var audio = document.createElement('audio')
-	audio.volume = options.volume || 0.5
-	audio.loop = options.loop
-	audio.src = src
-	return audio
-}
-
-zap.play()
 
 function drawBricks() {
 	for(c = 0; c < brickColumnCount; c++) {
@@ -93,6 +70,7 @@ function draw() {
 	drawBall()
 	drawPaddle()
 	collisionDetection()
+	drawScore()
 	x += dx
 	y += dy
 	if(y + dy < ballRadius) {
@@ -143,10 +121,21 @@ function collisionDetection() {
 				if (x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
 					dy = -dy
 					b.status = 0
+					score++
+					if(score == brickRowCount*brickColumnCount) {
+						alert("YOU WIN!, CONGRATULATIONS!")
+						document.location.reload()
+					}
 				}
 			}
 		}
 	}
+}
+
+function drawScore() {
+	ctx.font = "16px Arial"
+	ctx.fillStyle = "0095DD"
+	ctx.fillText("Score: " + score, 8, 20)
 }
 
 document.addEventListener("keydown", keyDownHandler, false)

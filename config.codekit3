@@ -52,6 +52,30 @@
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
+		},
+	"\/sounds\/background-music.mp3": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/background-music.mp3",
+		"oF": 0
+		},
+	"\/sounds\/bricks.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/bricks.wav",
+		"oF": 0
+		},
+	"\/sounds\/game-over.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/game-over.wav",
+		"oF": 0
+		},
+	"\/sounds\/paddle.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle.wav",
+		"oF": 0
 		}
 	},
 "hooks": [
