@@ -9,6 +9,12 @@
 	],
 "creatorBuild": "25813",
 "files": {
+	"\/Blip_Select3.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/Blip_Select3.m4a",
+		"oF": 0
+		},
 	"\/css\/style-min.css": {
 		"aP": 1,
 		"bl": 0,
@@ -59,6 +65,60 @@
 		"oAP": "\/sounds\/background-music.mp3",
 		"oF": 0
 		},
+	"\/sounds\/bg-music.mp3": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/bg-music.mp3",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select.m4a",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select10.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select10.m4a",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select16.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select16.m4a",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select17.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select17.m4a",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select18.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select18.m4a",
+		"oF": 0
+		},
+	"\/sounds\/Blip_Select8.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/Blip_Select8.m4a",
+		"oF": 0
+		},
+	"\/sounds\/brick10.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/brick10.m4a",
+		"oF": 0
+		},
+	"\/sounds\/brick11.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/brick11.m4a",
+		"oF": 0
+		},
 	"\/sounds\/bricks.wav": {
 		"ft": 8192,
 		"oA": 2,
@@ -71,10 +131,70 @@
 		"oAP": "\/sounds\/game-over.wav",
 		"oF": 0
 		},
+	"\/sounds\/levelup.mp3": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/levelup.mp3",
+		"oF": 0
+		},
+	"\/sounds\/paddle-down.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle-down.wav",
+		"oF": 0
+		},
 	"\/sounds\/paddle.wav": {
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/sounds\/paddle.wav",
+		"oF": 0
+		},
+	"\/sounds\/paddle10.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle10.m4a",
+		"oF": 0
+		},
+	"\/sounds\/paddle11.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle11.wav",
+		"oF": 0
+		},
+	"\/sounds\/paddle2.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle2.wav",
+		"oF": 0
+		},
+	"\/sounds\/paddle3.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/paddle3.wav",
+		"oF": 0
+		},
+	"\/sounds\/wall-bounce.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/wall-bounce.wav",
+		"oF": 0
+		},
+	"\/sounds\/wall10.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/wall10.wav",
+		"oF": 0
+		},
+	"\/sounds\/wall11.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/wall11.m4a",
+		"oF": 0
+		},
+	"\/sounds\/wall13.m4a": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/wall13.m4a",
 		"oF": 0
 		}
 	},
