@@ -4,23 +4,26 @@ var x = canvas.width/2
 var y = canvas.height-30
 var dx = 0
 var dy = 0
-var ballRadius = 7
+var ballRadius = 5
 var paddleHeight = 9
-var paddleWidth = 150
+var paddleWidth = 120
 var paddleX = (canvas.width-paddleWidth)/2
 var rightPressed = false
 var leftPressed = false
 var spacePressed = false
 var level = 0
 var speed = 2
+var levelTwo = 70
+var levelThree = 140
+
 
 var brickRowCount = 10
-var brickColumnCount = 20
+var brickColumnCount = 21
 var brickWidth = 30
 var brickHeight = 10
 var brickPadding = 3
 var brickOffsetTop = 40
-var brickOffsetLeft = 23
+var brickOffsetLeft = 5
 var bricksRemaining = brickColumnCount * brickRowCount
 
 var score = 0
@@ -83,13 +86,13 @@ function drawBricks() {
 	            bricks[c][r].y = brickY
 				ctx.beginPath()
 				ctx.rect(brickX, brickY, brickWidth, brickHeight)
-				// if (whichLevel() == 2) {
+				if (score > levelThree) {
+					ctx.fillStyle = levelThreeColour
+				} else if (score > levelTwo) {
+					ctx.fillStyle = levelTwoColour
+				} else {
 					ctx.fillStyle = levelOneColour
-				// } else if (whichLevel() == 3) {
-				// 	ctx.fillStyle = levelTwoColour
-				// } else if (whichLevel() == 4) {
-				// 	ctx.fillStyle = levelThreeColour
-				// }
+				}
 				ctx.fill()
 				ctx.closePath()
 			}
@@ -159,24 +162,66 @@ function draw() {
 		paddleAudio.play()
 		dy = -dy
 	} else if (y + dy > canvas.height-ballRadius) {
-		if (x > paddleX && x < paddleX + paddleWidth) {
+		if (x > paddleX && x < paddleX + paddleWidth+5) {
+			var hitPos = Math.round((x - paddleX)/120*6)
 			wall.play()
+			// speed = speed + 0.1
+			// if (hitPos == 1 || hitPos == 6) {
+			// 	dy -= 0.5
+			// } else if (hitPos == 3 || hitPos == 4) {
+			// 	dy += 0.5
+			// }
+			// if (dx > 0) {
+			// 	dx = speed
+			// } else {
+			// 	dx = -speed
+			// }
+			// if (dy > 0) {
+			// 	dy = speed
+			// } else {
+			// 	dy = -speed
+			// }
+			// dx = 5
+
 			dy = -dy
-			if (x < paddleX + paddleWidth/2) {
-				if (dx > 0) {
+			if (dx > 0) {
+				console.log("+")
+				if (hitPos == 1) {
+					dx = -dx + 1
+				} else if (hitPos == 2) {
 					dx = -dx
+				} else if (hitPos == 3) {
+					dx = dx
+				} else {
+					dx = dx + 1
 				}
 			} else {
-				if (dx < 0) {
+				console.log("-")
+				if (hitPos == 1) {
+					dx = dx -1
+				} else if (hitPos == 2) {
+					dx = dx
+				} else if (hitPos == 3) {
 					dx = -dx
+				} else {
+					dx = -dx - 1
 				}
+				console.log(dx)
 			}
+			// if (x < paddleX + paddleWidth/2) {
+			// 	if (dx > 0) {
+			// 		dx = -dx
+			// 	}
+			// } else {
+			// 	if (dx < 0) {
+			// 		dx = -dx
+			// 	}
+			// }
 		} else {
 			if (!lives) {
 				alert("GAME OVER")
 				document.location.reload()
 			} else {
-				console.log("hi")
 				x = canvas.width/2
 				y = canvas.height-30
 				dx = 0
@@ -195,18 +240,22 @@ function draw() {
 	else if (leftPressed && paddleX > 0) {
 		paddleX -= 7
 	}
-	if (score == 2) {
-		speed = 3
-		if (dx > 0) {
-			dx = speed
-		} else {
-			dx = -speed
-		}
-		if (dy > 0) {
-			dy = speed
-		} else {
-			dy = -speed
-		}
+	if (score == levelTwo) {
+		paddleWidth = 70
+		// speed = 3
+		// if (dx > 0) {
+		// 	dx = speed
+		// } else {
+		// 	dx = -speed
+		// }
+		// if (dy > 0) {
+		// 	dy = speed
+		// } else {
+		// 	dy = -speed
+		// }
+	}
+	if (score == levelThree) {
+		paddleWidth = 50
 	}
 	// if (whichLevel() == 3) {
 	// 	// console.log(whichLevel())
