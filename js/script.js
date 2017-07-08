@@ -1,11 +1,17 @@
-// (function() {
+(function() {
 	var Game = function(canvasId) {
 		var canvas = document.getElementById(canvasId)
 		var ctx = canvas.getContext("2d");
 		var gameSize = { x: canvas.width, y: canvas.height }
 
 		//things that need to be drawn
-		this.bodies = [new Player(this, gameSize), new Ball(this, gameSize, { x: 150, y: 140 }, { x: 0, y: 0})]
+		// this.bodies = drawBricks(this).concat([new Player(this, gameSize), new Ball(this, gameSize, { x: 150, y: 140 }, { x: 0, y: 0})])
+
+		this.bodies = {
+			bricks: drawBricks(this),
+			player: new Player(this, gameSize),
+			ball: new Ball(this, gameSize, { x: 150, y: 140 }, { x: 0, y: 0})
+		}
 
 		var self = this
 		function play() {
@@ -17,16 +23,23 @@
 
 	Game.prototype = {
 		update: function() {
-			for (var i = 0; i < this.bodies.length; i++) {
-				this.bodies[i].update()
-			}
-			var collision = hitPaddle(this.bodies[0], this.bodies[1])
+			// console.log(ball.center.x > )
+			var ball = this.bodies.ball
+			this.bodies.bricks = this.bodies.bricks.filter(function(brick) {
+				return !collision(brick, ball)
+			})
+			this.bodies.player.update()
+			this.bodies.ball.update()
+			// hitPaddle(this.bodies.player, this.bodies.ball)
+			// colliding()
 		},
 
 		draw: function(ctx, gameSize) {
 			ctx.clearRect(0, 0, gameSize.x, gameSize.y)
-			for (var i = 0; i < this.bodies.length; i++) {
-				drawRect(ctx, this.bodies[i])
+			drawRect(ctx, this.bodies.player)
+			drawRect(ctx, this.bodies.ball)
+			for (var i = 0; i < this.bodies.bricks.length; i++) {
+				drawRect(ctx, this.bodies.bricks[i])
 			}
 		},
 	}
@@ -47,7 +60,7 @@
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT)) {
 				this.center.x += 2
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
-				this.game.bodies[1].velocity = { x: 1, y: -1 }
+				this.game.bodies.ball.velocity = { x: 1, y: -1 }
 			}
 		}
 	}
@@ -85,9 +98,19 @@
 			}
 
 			//ball hits the paddel
-			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies[0], this.center)) {
+			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies.player, this.center)) {
 				this.velocity.y = -this.velocity.y
-			} 
+			}
+			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
+				if (collision(this.game.bodies.bricks[i], this)) {
+					this.velocity.y = -this.velocity.y
+				}
+			}
+			// for (var i = 0; i < this.game.bricks.length; i++) {
+			// 	if (collision(this.game.bricks[i])) {
+			// 		console.log("hit")
+			// 	}
+			// }
 			// } else if (x > paddleX && x < paddleX + paddleWidth+5) {
 			// 	// var hitPos = Math.round((x - paddleX)/paddleWidth*6)
 			// 	wall.play()
@@ -138,49 +161,65 @@
 
 	var Brick = function(game, center) {
 		this.game = game
-		this.size = { x: 4, y: 2 }
+		this.size = { x: 14, y: 7 }
 		this.center = center
 	}
 	//
 	Brick.prototype = {
 		update: function() {
-			
 		}
 	}
 
-	var makeBricks = function(game) {
+	var drawBricks = function(game) {
+		// var ball = game.bodies[108]
 		var bricks = []
-		for(c = 0; c < brickColumnCount; c++) {
-			bricks[c] = []
-			for(r = 0; r < brickRowCount; r++) {
-				bricks[c][r] = { x: 0, y: 0 }
-			}
+		for (var i = 0; i < 108; i++) {
+			var x = 10 + (i % 11) * 22
+			var y = 20 + (i % 9) * 12
+			// if (colliding(x, y, 14, 7, ball)) {
+				bricks.push(new Brick(game, { x: x, y: y}))
+			// }
 		}
+		return bricks
 	}
 
-	function drawBricks() {
-	for(c = 0; c < 21; c++) {
-		for(r = 0; r < 9; r++) {
-			if(bricks[c][r].status == 1) {
-				var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft
-				var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop
-				bricks[c][r].x = brickX
-	            bricks[c][r].y = brickY
-				ctx.beginPath()
-				ctx.rect(brickX, brickY, brickWidth, brickHeight)
-				if (score >= levelThree) {
-					ctx.fillStyle = levelThreeColour
-				} else if (score >= levelTwo) {
-					ctx.fillStyle = levelTwoColour
-				} else {
-					ctx.fillStyle = levelOneColour
-				}
-				ctx.fill()
-				ctx.closePath()
-			}
-		}
+	var collision = function(brick, ball) {
+		return (ball.center.x > brick.center.x && ball.center.x < brick.center.x + brick.size.x && ball.center.y > brick.center.y && ball.center.y < brick.center.y + brick.size.y)
 	}
-}
+
+	// var makeBricks = function(game) {
+	// 	var bricks = []
+	// 	for(c = 0; c < brickColumnCount; c++) {
+	// 		bricks[c] = []
+	// 		for(r = 0; r < brickRowCount; r++) {
+	// 			bricks[c][r] = { x: 0, y: 0 }
+	// 		}
+	// 	}
+	// }
+
+	// function drawBricks() {
+	// 	for(c = 0; c < 21; c++) {
+	// 		for(r = 0; r < 9; r++) {
+	// 			if(bricks[c][r].status == 1) {
+	// 				var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft
+	// 				var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop
+	// 				bricks[c][r].x = brickX
+	// 	            bricks[c][r].y = brickY
+	// 				ctx.beginPath()
+	// 				ctx.rect(brickX, brickY, brickWidth, brickHeight)
+	// 				if (score >= levelThree) {
+	// 					ctx.fillStyle = levelThreeColour
+	// 				} else if (score >= levelTwo) {
+	// 					ctx.fillStyle = levelTwoColour
+	// 				} else {
+	// 					ctx.fillStyle = levelOneColour
+	// 				}
+	// 				ctx.fill()
+	// 				ctx.closePath()
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 
 	//does all the drawing
@@ -212,6 +251,36 @@
 		}
 	}
 
+	// 	for(c = 0; c < brickColumnCount; c++) {
+// 		for(r = 0; r < brickRowCount; r++) {
+// 			var b = bricks[c][r]
+// 			if (b.status == 1) {
+// 				if (x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+// 					dy = -dy
+// 					b.status = 0
+// 					score++
+// 					brickAudio.play()
+// 					bricksRemaining -= 1
+// 					if (score == levelTwo || score == levelThree) {
+// 						levelUp.play()
+// 					}
+
+// 					if(score == brickRowCount*brickColumnCount) {
+// 						gameOver.play()
+// 						level = 3
+// 						x = canvas.width/2
+// 						y = canvas.height-30
+// 						dx = 0
+// 						dy = 0
+// 						paddleX = (canvas.width-paddleWidth)/2
+// 						resetBricks()
+// 						score = 0
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+
 	// function collide(ball) {
 	// 	if (ball) {
 
@@ -221,7 +290,7 @@
 	window.onload = function() {
 		new Game("screen")
 	}
-// })()
+})()
 
 //Draw
 //-----
