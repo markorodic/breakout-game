@@ -4,9 +4,6 @@
 		var ctx = canvas.getContext("2d");
 		var gameSize = { x: canvas.width, y: canvas.height }
 
-		//things that need to be drawn
-		// this.bodies = drawBricks(this).concat([new Player(this, gameSize), new Ball(this, gameSize, { x: 150, y: 140 }, { x: 0, y: 0})])
-
 		this.bodies = {
 			bricks: drawBricks(this),
 			player: new Player(this, gameSize),
@@ -14,12 +11,66 @@
 		}
 
 		var self = this
-		function play() {
-			self.update()
-			self.draw(ctx, gameSize)
+
+		var audio = {
+			paddle: 'sounds/paddle3.wav',
+			bricks: 'sounds/paddle.wav',
+			wall: 'sounds/bg-music.mp3',
+			levelUp: 'sounds/levelup.mp3',
+			lostLife: 'sounds/game-over.wav',
+			gameOver: 'sounds/game-over.wav',
+			background: 'sounds/game-over.wav'
 		}
-		setInterval(play, 10)
+
+		// for (var i = 0; i < Object.keys(audio).length; i++) {
+		// 	loadSound(Object.keys(audio)[i], audio[Object.keys(audio)[i]])
+		// }
+
+
+		//initialize audio
+		this.brickAudio = document.createElement('audio')
+		this.paddleAudio = document.createElement('audio')
+		this.musicAudio = document.createElement('audio')
+		this.gameOver = document.createElement('audio')
+		this.levelUp = document.createElement('audio')
+		this.wall = document.createElement('audio')
+
+		//set audio files
+		this.brickAudio.setAttribute('src', 'sounds/paddle3.wav')
+		this.paddleAudio.setAttribute('src', 'sounds/paddle.wav')
+		this.musicAudio.setAttribute('src', 'sounds/bg-music.mp3')
+		this.gameOver.setAttribute('src', 'sounds/game-over.wav')
+		this.levelUp.setAttribute('src', 'sounds/levelup.mp3')
+		this.wall.setAttribute('src', 'sounds/bricks.wav')
+
+		//audio settings
+		// musicAudio.volume = 0.2
+		// musicAudio.loop = true
+
+		// loadSound('sounds/bricks.wav', function(sound) {
+			// self.sound = sound
+			function play() {
+				self.update()
+				self.draw(ctx, gameSize)
+			}
+			setInterval(play, 10)
+		// })
 	}
+
+	// function loadAudio(name, source) {
+	// 	var name = document.createElement('audio')
+	// 	name.setAttribute('src', source)
+	// }
+
+	// var loadSound = function(url, callback) {
+	// 	var loaded = function() {
+	// 		callback(sound)
+	// 		sound.addEventListener('canplaythrough', loaded)
+	// 	}
+	// 	var sound = new Audio(url)
+	// 	sound.addEventListener('canplaythrough', loaded)
+	// 	sound.load()
+	// }
 
 	Game.prototype = {
 		update: function() {
@@ -30,13 +81,12 @@
 			})
 			this.bodies.player.update()
 			this.bodies.ball.update()
-			// hitPaddle(this.bodies.player, this.bodies.ball)
-			// colliding()
 		},
 
 		draw: function(ctx, gameSize) {
 			ctx.clearRect(0, 0, gameSize.x, gameSize.y)
 			drawRect(ctx, this.bodies.player)
+			// ctx.arc(50, 50, 10, 0, Math.PI*2)
 			drawRect(ctx, this.bodies.ball)
 			for (var i = 0; i < this.bodies.bricks.length; i++) {
 				drawRect(ctx, this.bodies.bricks[i])
@@ -46,13 +96,12 @@
 
 	var Player = function(game, gameSize) {
 		this.game = game
-		this.size = { x: 30, y: 4 }
+		this.size = { x: 70, y: 6 }
 		this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 		this.keyboarder = new Keyboarder()
 		this.gameSize = gameSize
 	}
 
-	//
 	Player.prototype = {
 		update: function() {
 			if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT)) {
@@ -80,29 +129,34 @@
 
 			//ball hits the ceiling
 			if(this.center.y < (this.size.x / 2)) {
-				// paddleAudio.play()
+				this.game.paddleAudio.play()
 				this.velocity.y = -this.velocity.y
 			}
 
 			//ball hits the walls
 			if(this.center.x > this.gameSize.x - (this.size.x / 2) || this.center.x < (this.size.x / 2)) {
 				// paddleAudio.play()
+				this.game.paddleAudio.play()
 				this.velocity.x = -this.velocity.x
 			}
 
 			//lost a life
 			if(this.center.y > this.gameSize.y) {
-				// paddleAudio.play()
+				this.game.gameOver.play()
 				this.center = { x: 150, y: 140 }
 				this.velocity = { x: 0, y: 0 }
 			}
 
 			//ball hits the paddel
 			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies.player, this.center)) {
+				var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
+				console.log(hitPos)
+				this.game.wall.play()
 				this.velocity.y = -this.velocity.y
 			}
 			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
 				if (collision(this.game.bodies.bricks[i], this)) {
+					this.game.brickAudio.play()
 					this.velocity.y = -this.velocity.y
 				}
 			}
@@ -112,9 +166,7 @@
 			// 	}
 			// }
 			// } else if (x > paddleX && x < paddleX + paddleWidth+5) {
-			// 	// var hitPos = Math.round((x - paddleX)/paddleWidth*6)
-			// 	wall.play()
-			// 	this.velocity.y = -this.velocity.y
+
 			// }
 			// 		if (dx > 0) {
 			// 			if (hitPos == 1) {
@@ -161,7 +213,7 @@
 
 	var Brick = function(game, center) {
 		this.game = game
-		this.size = { x: 14, y: 7 }
+		this.size = { x: 15, y: 7 }
 		this.center = center
 	}
 	//
@@ -171,56 +223,23 @@
 	}
 
 	var drawBricks = function(game) {
-		// var ball = game.bodies[108]
 		var bricks = []
-		for (var i = 0; i < 108; i++) {
-			var x = 10 + (i % 11) * 22
-			var y = 20 + (i % 9) * 12
-			// if (colliding(x, y, 14, 7, ball)) {
-				bricks.push(new Brick(game, { x: x, y: y}))
-			// }
+		for (var i = 0; i < 42; i++) {
+			var x = 20 + (i % 14) * 20
+			var y = 30 + (i % 3) * 10
+		// for (var i = 0; i < 108; i++) {
+		// 	var x = 10 + (i % 11) * 22
+		// 	var y = 10 + (i % 9) * 12
+			bricks.push(new Brick(game, { x: x, y: y}))
 		}
 		return bricks
 	}
 
 	var collision = function(brick, ball) {
-		return (ball.center.x > brick.center.x && ball.center.x < brick.center.x + brick.size.x && ball.center.y > brick.center.y && ball.center.y < brick.center.y + brick.size.y)
+		var startX = brick.center.x - brick.size.x / 2
+		var startY = brick.center.y - brick.size.y / 2
+		return (ball.center.x > startX && ball.center.x < startX + brick.size.x && ball.center.y > startY && ball.center.y < startY + brick.size.y)
 	}
-
-	// var makeBricks = function(game) {
-	// 	var bricks = []
-	// 	for(c = 0; c < brickColumnCount; c++) {
-	// 		bricks[c] = []
-	// 		for(r = 0; r < brickRowCount; r++) {
-	// 			bricks[c][r] = { x: 0, y: 0 }
-	// 		}
-	// 	}
-	// }
-
-	// function drawBricks() {
-	// 	for(c = 0; c < 21; c++) {
-	// 		for(r = 0; r < 9; r++) {
-	// 			if(bricks[c][r].status == 1) {
-	// 				var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft
-	// 				var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop
-	// 				bricks[c][r].x = brickX
-	// 	            bricks[c][r].y = brickY
-	// 				ctx.beginPath()
-	// 				ctx.rect(brickX, brickY, brickWidth, brickHeight)
-	// 				if (score >= levelThree) {
-	// 					ctx.fillStyle = levelThreeColour
-	// 				} else if (score >= levelTwo) {
-	// 					ctx.fillStyle = levelTwoColour
-	// 				} else {
-	// 					ctx.fillStyle = levelOneColour
-	// 				}
-	// 				ctx.fill()
-	// 				ctx.closePath()
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 
 	//does all the drawing
 	var drawRect = function(ctx, body) {
@@ -251,41 +270,6 @@
 		}
 	}
 
-	// 	for(c = 0; c < brickColumnCount; c++) {
-// 		for(r = 0; r < brickRowCount; r++) {
-// 			var b = bricks[c][r]
-// 			if (b.status == 1) {
-// 				if (x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
-// 					dy = -dy
-// 					b.status = 0
-// 					score++
-// 					brickAudio.play()
-// 					bricksRemaining -= 1
-// 					if (score == levelTwo || score == levelThree) {
-// 						levelUp.play()
-// 					}
-
-// 					if(score == brickRowCount*brickColumnCount) {
-// 						gameOver.play()
-// 						level = 3
-// 						x = canvas.width/2
-// 						y = canvas.height-30
-// 						dx = 0
-// 						dy = 0
-// 						paddleX = (canvas.width-paddleWidth)/2
-// 						resetBricks()
-// 						score = 0
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-
-	// function collide(ball) {
-	// 	if (ball) {
-
-	// 	}
-	// }
 
 	window.onload = function() {
 		new Game("screen")
