@@ -3,6 +3,14 @@
 		var canvas = document.getElementById(canvasId)
 		var ctx = canvas.getContext("2d");
 		var gameSize = { x: canvas.width, y: canvas.height }
+		this.score = 0
+		this.life = 3
+
+		this.levelColours = {
+			levelOne: 'blue',
+			levelTwo: 'red',
+			levelThree: 'green'
+		}
 
 		this.bodies = {
 			bricks: drawBricks(this),
@@ -18,59 +26,32 @@
 			wall: 'sounds/bg-music.mp3',
 			levelUp: 'sounds/levelup.mp3',
 			lostLife: 'sounds/game-over.wav',
-			gameOver: 'sounds/game-over.wav',
+			gameOver: 'sounds/over.wav',
 			background: 'sounds/game-over.wav'
 		}
-
-		// for (var i = 0; i < Object.keys(audio).length; i++) {
-		// 	loadSound(Object.keys(audio)[i], audio[Object.keys(audio)[i]])
-		// }
-
 
 		//initialize audio
 		this.brickAudio = document.createElement('audio')
 		this.paddleAudio = document.createElement('audio')
-		this.musicAudio = document.createElement('audio')
 		this.gameOver = document.createElement('audio')
+		this.lostLife = document.createElement('audio')
 		this.levelUp = document.createElement('audio')
-		this.wall = document.createElement('audio')
+		this.paddle = document.createElement('audio')
 
 		//set audio files
 		this.brickAudio.setAttribute('src', 'sounds/paddle3.wav')
 		this.paddleAudio.setAttribute('src', 'sounds/paddle.wav')
-		this.musicAudio.setAttribute('src', 'sounds/bg-music.mp3')
-		this.gameOver.setAttribute('src', 'sounds/game-over.wav')
+		this.gameOver.setAttribute('src', 'sounds/over.wav')
+		this.lostLife.setAttribute('src', 'sounds/game-over.wav')
 		this.levelUp.setAttribute('src', 'sounds/levelup.mp3')
-		this.wall.setAttribute('src', 'sounds/bricks.wav')
+		this.paddle.setAttribute('src', 'sounds/bricks.wav')
 
-		//audio settings
-		// musicAudio.volume = 0.2
-		// musicAudio.loop = true
-
-		// loadSound('sounds/bricks.wav', function(sound) {
-			// self.sound = sound
-			function play() {
-				self.update()
-				self.draw(ctx, gameSize)
-			}
-			setInterval(play, 10)
-		// })
+		function play() {
+			self.update()
+			self.draw(ctx, gameSize)
+		}
+		setInterval(play, 10)
 	}
-
-	// function loadAudio(name, source) {
-	// 	var name = document.createElement('audio')
-	// 	name.setAttribute('src', source)
-	// }
-
-	// var loadSound = function(url, callback) {
-	// 	var loaded = function() {
-	// 		callback(sound)
-	// 		sound.addEventListener('canplaythrough', loaded)
-	// 	}
-	// 	var sound = new Audio(url)
-	// 	sound.addEventListener('canplaythrough', loaded)
-	// 	sound.load()
-	// }
 
 	Game.prototype = {
 		update: function() {
@@ -81,6 +62,7 @@
 			})
 			this.bodies.player.update()
 			this.bodies.ball.update()
+			// changeLevelUp(this.bodies)
 		},
 
 		draw: function(ctx, gameSize) {
@@ -88,10 +70,39 @@
 			drawRect(ctx, this.bodies.player)
 			// ctx.arc(50, 50, 10, 0, Math.PI*2)
 			drawRect(ctx, this.bodies.ball)
+			drawText(ctx, "Score: ", this.score, 13, 20)
+			drawText(ctx, "Lives: ", this.life, 232, 20)
 			for (var i = 0; i < this.bodies.bricks.length; i++) {
 				drawRect(ctx, this.bodies.bricks[i])
 			}
+			if (this.life == 0) {
+				this.gameOver.play()
+				ctx.font = "16px Arial"
+				ctx.fillStyle = "black"
+				ctx.fillText('GAME OVER', 100, 100)
+			}
 		},
+	}
+
+	//does all the drawing
+	var drawRect = function(ctx, body) {
+
+		ctx.fillRect(body.center.x - body.size.x / 2,
+						body.center.y - body.size.y / 2,
+						body.size.x, body.size.y)
+		levelUp(ctx, this.score)
+		ctx.fill()
+		ctx.closePath()
+	}
+
+	var levelUp = function(ctx, score) {
+		if (score >= 70) {
+			ctx.fillStyle = this.levelThree
+		} else if (score >= 35) {
+			ctx.fillStyle = this.levelTwo
+		} else {
+			ctx.fillStyle = this.levelOne
+		}
 	}
 
 	var Player = function(game, gameSize) {
@@ -135,14 +146,16 @@
 
 			//ball hits the walls
 			if(this.center.x > this.gameSize.x - (this.size.x / 2) || this.center.x < (this.size.x / 2)) {
-				// paddleAudio.play()
 				this.game.paddleAudio.play()
 				this.velocity.x = -this.velocity.x
 			}
 
 			//lost a life
 			if(this.center.y > this.gameSize.y) {
-				this.game.gameOver.play()
+				this.game.lostLife.play()
+				if (this.game.life > 0) {
+					this.game.life -= 1
+				}
 				this.center = { x: 150, y: 140 }
 				this.velocity = { x: 0, y: 0 }
 			}
@@ -150,65 +163,31 @@
 			//ball hits the paddel
 			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies.player, this.center)) {
 				var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
-				console.log(hitPos)
-				this.game.wall.play()
+				this.game.paddle.play()
+				release(this.velocity, hitPos)
 				this.velocity.y = -this.velocity.y
 			}
+
 			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
 				if (collision(this.game.bodies.bricks[i], this)) {
+					this.game.score += 1
 					this.game.brickAudio.play()
 					this.velocity.y = -this.velocity.y
 				}
 			}
-			// for (var i = 0; i < this.game.bricks.length; i++) {
-			// 	if (collision(this.game.bricks[i])) {
-			// 		console.log("hit")
-			// 	}
-			// }
-			// } else if (x > paddleX && x < paddleX + paddleWidth+5) {
-
-			// }
-			// 		if (dx > 0) {
-			// 			if (hitPos == 1) {
-			// 				dx = -dx + 0.5
-			// 			} else if (hitPos == 2) {
-			// 				dx = -dx + 0.1
-			// 			} else if (hitPos == 3) {
-			// 				dx = dx - 0.1
-			// 			} else {
-			// 				dx = dx + 1
-			// 			}
-			// 		} else {
-			// 			if (hitPos == 1) {
-			// 				dx = dx -1
-			// 			} else if (hitPos == 2) {
-			// 				dx = dx - 0.1
-			// 			} else if (hitPos == 3) {
-			// 				dx = -dx + 0.1
-			// 			} else {
-			// 				dx = -dx - 0.5
-			// 			}
-			// 		}
-			// 	} else {
-			// 		console.log('below', lives)
-			// 		if (lives==0) {
-			// 			gameOver.play()
-			// 			x = canvas.width/2
-			// 			y = canvas.height-30
-			// 			dx = 0
-			// 			dy = 0
-			// 			lives -= 1
-			// 		} else {
-			// 			x = canvas.width/2
-			// 			y = canvas.height-30
-			// 			dx = 0
-			// 			dy = 0
-			// 			lives -= 1
-			// 		}
-			// 	}
-			// }
-
 		}
+	}
+
+	function gameOver(ctx) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText('GAME OVER', 40, 40)
+	}
+
+	function drawText(ctx, text, variable, left, top) {
+		ctx.font = "16px Arial"
+		ctx.fillStyle = "black"
+		ctx.fillText(text + variable, left, top)
 	}
 
 	var Brick = function(game, center) {
@@ -224,12 +203,9 @@
 
 	var drawBricks = function(game) {
 		var bricks = []
-		for (var i = 0; i < 42; i++) {
-			var x = 20 + (i % 14) * 20
-			var y = 30 + (i % 3) * 10
-		// for (var i = 0; i < 108; i++) {
-		// 	var x = 10 + (i % 11) * 22
-		// 	var y = 10 + (i % 9) * 12
+		for (var i = 0; i < 100; i++) {
+			var x = 20 + (i % 25) * 20
+			var y = 30 + (i % 4) * 10
 			bricks.push(new Brick(game, { x: x, y: y}))
 		}
 		return bricks
@@ -241,11 +217,36 @@
 		return (ball.center.x > startX && ball.center.x < startX + brick.size.x && ball.center.y > startY && ball.center.y < startY + brick.size.y)
 	}
 
-	//does all the drawing
-	var drawRect = function(ctx, body) {
-		ctx.fillRect(body.center.x - body.size.x / 2,
-						body.center.y - body.size.y / 2,
-						body.size.x, body.size.y)
+	var release = function(velocity, hitPos) {
+		if (velocity.x > 0) {
+			if (hitPos == 1) {
+				velocity.x = -velocity.x + 0.25
+			} else if (hitPos == 2) {
+				velocity.x = -velocity.x + 0.1
+			} else if (hitPos == 3) {
+				velocity.x = -velocity.x - 0.1
+			} else if (hitPos == 4) {
+				velocity.x = velocity.x + 0.1
+			} else if (hitPos == 5) {
+				velocity.x = velocity.x + 0.25
+			} else {
+				velocity.x = velocity.x + 0.5
+			}
+		} else {
+			if (hitPos == 1) {
+				velocity.x = velocity.x -0.5
+			} else if (hitPos == 2) {
+				velocity.x = velocity.x - 0.25
+			} else if (hitPos == 3) {
+				velocity.x = velocity.x - 0.1
+			} else if (hitPos == 4) {
+				velocity.x = -velocity.x + 0.1
+			} else if (hitPos == 5) {
+				velocity.x = -velocity.x - 0.1
+			} else {
+				velocity.x = -velocity.x - 0.25
+			}
+		}
 	}
 
 	//control logic

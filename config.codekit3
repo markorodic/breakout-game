@@ -137,6 +137,12 @@
 		"oAP": "\/sounds\/levelup.mp3",
 		"oF": 0
 		},
+	"\/sounds\/over.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/over.wav",
+		"oF": 0
+		},
 	"\/sounds\/paddle-down.wav": {
 		"ft": 8192,
 		"oA": 2,
