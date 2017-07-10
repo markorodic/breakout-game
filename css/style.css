@@ -1,5 +1,14 @@
 canvas {
+	min-width: 500px;
 	background: #eee;
+	border: 8px solid black;
+}
+
+div {
+	height: 90vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 /*body {

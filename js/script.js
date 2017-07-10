@@ -1,11 +1,21 @@
 (function() {
 	var Game = function(canvasId) {
 		var canvas = document.getElementById(canvasId)
+		// var sf = window.devicePixelRatio
+		// var elWidth = canvas.width
+		// var elHeight = canvas.height
+		// canvas.width = elWidth * sf
+		// canvas.elHeight = elHeight * sf
 		var ctx = canvas.getContext("2d");
+		// ctx.canvas.height = window.innerHeight * 0.82;
 		var gameSize = { x: canvas.width, y: canvas.height }
+
+		//**************************************
+		this.canvas = canvas
 		this.score = 0
 		this.life = 3
 
+		//**************************************
 		this.levelColours = {
 			levelOne: 'blue',
 			levelTwo: 'red',
@@ -15,11 +25,13 @@
 		this.bodies = {
 			bricks: drawBricks(this),
 			player: new Player(this, gameSize),
-			ball: new Ball(this, gameSize, { x: 150, y: 140 }, { x: 0, y: 0})
+			ball: new Ball(this, gameSize, { x: 250, y: 450 }, { x: 0, y: 0})
 		}
 
+		//???????????????????????????????????????
 		var self = this
 
+		//**************************************
 		var audio = {
 			paddle: 'sounds/paddle3.wav',
 			bricks: 'sounds/paddle.wav',
@@ -29,7 +41,6 @@
 			gameOver: 'sounds/over.wav',
 			background: 'sounds/game-over.wav'
 		}
-
 		//initialize audio
 		this.brickAudio = document.createElement('audio')
 		this.paddleAudio = document.createElement('audio')
@@ -37,7 +48,6 @@
 		this.lostLife = document.createElement('audio')
 		this.levelUp = document.createElement('audio')
 		this.paddle = document.createElement('audio')
-
 		//set audio files
 		this.brickAudio.setAttribute('src', 'sounds/paddle3.wav')
 		this.paddleAudio.setAttribute('src', 'sounds/paddle.wav')
@@ -45,11 +55,14 @@
 		this.lostLife.setAttribute('src', 'sounds/game-over.wav')
 		this.levelUp.setAttribute('src', 'sounds/levelup.mp3')
 		this.paddle.setAttribute('src', 'sounds/bricks.wav')
-
+		this.gameOver.loop = false
+		// this.levelUp.loop = false
 		function play() {
 			self.update()
 			self.draw(ctx, gameSize)
 		}
+
+		//??????????????????????????
 		setInterval(play, 10)
 	}
 
@@ -61,53 +74,109 @@
 				return !collision(brick, ball)
 			})
 			this.bodies.player.update()
-			this.bodies.ball.update()
+			ball.update()
+			if (this.score == 400) {
+				this.bodies.player.size.x = 50
+			} else if (this.score == 300) {
+				this.bodies.player.size.x = 65
+			} else if (this.score == 200) {
+				this.bodies.player.size.x = 75
+			} else if (this.score == 100) {
+				this.bodies.player.size.x = 90
+			}
 			// changeLevelUp(this.bodies)
 		},
 
 		draw: function(ctx, gameSize) {
+			//?????????????????????????????????????????
 			ctx.clearRect(0, 0, gameSize.x, gameSize.y)
-			drawRect(ctx, this.bodies.player)
-			// ctx.arc(50, 50, 10, 0, Math.PI*2)
-			drawRect(ctx, this.bodies.ball)
-			drawText(ctx, "Score: ", this.score, 13, 20)
-			drawText(ctx, "Lives: ", this.life, 232, 20)
+			drawText(ctx, "Score: ", this.score, 13, 20, this.score)
+			drawText(ctx, "Lives: ", this.life, this.canvas.width - 70, 20, this.score)
+			drawRect(ctx, this.bodies.ball, this.score)
+			drawRect(ctx, this.bodies.player, this.score)
 			for (var i = 0; i < this.bodies.bricks.length; i++) {
-				drawRect(ctx, this.bodies.bricks[i])
+				drawRect(ctx, this.bodies.bricks[i], this.score)
 			}
+
+			//**************************************
 			if (this.life == 0) {
+				ctx.font = "50px Arial"
+				if (this.score > 400) {
+					ctx.fillStyle = '#c92ded'
+				} else if (this.score > 300) {
+					ctx.fillStyle = '#ffb800'
+				} else if (this.score > 200) {
+					ctx.fillStyle = '#dbff3f'
+				} else if (this.score > 100) {
+					ctx.fillStyle = '#35f2bf'
+				}
+				ctx.fillText('GAME OVER', 100, 390)
 				this.gameOver.play()
-				ctx.font = "16px Arial"
-				ctx.fillStyle = "black"
-				ctx.fillText('GAME OVER', 100, 100)
+			}
+			if (this.score > 400) {
+				this.canvas.style.background = '#eded2b'
+				this.canvas.style.border = '8px solid #c6c623'
+			} else if (this.score > 300) {
+				this.canvas.style.background = '#18bff7'
+				this.canvas.style.border = '8px solid #1193bf'
+			} else if (this.score > 200) {
+				this.canvas.style.background = '#5f3fff'
+				this.canvas.style.border = '8px solid #4027bc'
+			} else if (this.score > 100) {
+				this.canvas.style.background = '#ff3456'
+				this.canvas.style.border = '8px solid #c61f3b'
+			}
+			if (this.score == 400) {
+				this.levelUp.play()
+			} else if (this.score == 300) {
+				this.levelUp.play()
+			} else if (this.score == 200) {
+				this.levelUp.play()
+			} else if (this.score == 100) {
+				this.levelUp.play()
 			}
 		},
 	}
 
 	//does all the drawing
-	var drawRect = function(ctx, body) {
-
+	var drawRect = function(ctx, body, score) {
+		if (score > 400) {
+			ctx.fillStyle = '#c92ded'
+		} else if (score > 300) {
+			ctx.fillStyle = '#ffb800'
+		} else if (score > 200) {
+			ctx.fillStyle = '#dbff3f'
+		} else if (score > 100) {
+			ctx.fillStyle = '#35f2bf'
+		}
 		ctx.fillRect(body.center.x - body.size.x / 2,
 						body.center.y - body.size.y / 2,
 						body.size.x, body.size.y)
-		levelUp(ctx, this.score)
-		ctx.fill()
-		ctx.closePath()
 	}
 
-	var levelUp = function(ctx, score) {
-		if (score >= 70) {
-			ctx.fillStyle = this.levelThree
-		} else if (score >= 35) {
-			ctx.fillStyle = this.levelTwo
-		} else {
-			ctx.fillStyle = this.levelOne
+	function drawText(ctx, text, variable, left, top, score) {
+		ctx.font = "16px Arial"
+		if (score > 400) {
+			ctx.fillStyle = '#c92ded'
+		} else if (score > 300) {
+			ctx.fillStyle = '#ffb800'
+		} else if (score > 200) {
+			ctx.fillStyle = '#dbff3f'
+		} else if (score > 100) {
+			ctx.fillStyle = '#35f2bf'
 		}
+		ctx.fillText(text + variable, left, top)
 	}
+
+	// function gameOver(ctx) {
+	// 	ctx.font = "16px Arial"
+	// 	ctx.fillStyle = "black"
+	// 	ctx.fillText('GAME OVER', 100, 100)
+	// }
 
 	var Player = function(game, gameSize) {
 		this.game = game
-		this.size = { x: 70, y: 6 }
+		this.size = { x: 100, y: 10 }
 		this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 		this.keyboarder = new Keyboarder()
 		this.gameSize = gameSize
@@ -116,18 +185,18 @@
 	Player.prototype = {
 		update: function() {
 			if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT)) {
-				this.center.x -= 2
+				this.center.x -= 4
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT)) {
-				this.center.x += 2
+				this.center.x += 4
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
-				this.game.bodies.ball.velocity = { x: 1, y: -1 }
+				this.game.bodies.ball.velocity = { x: 2, y: -2 }
 			}
 		}
 	}
 
 	var Ball = function(game, gameSize, center, velocity) {
 		this.game = game
-		this.size = { x: 4, y: 4 }
+		this.size = { x: 8, y: 8 }
 		this.center = center
 		this.velocity = velocity
 		this.gameSize = gameSize
@@ -156,16 +225,17 @@
 				if (this.game.life > 0) {
 					this.game.life -= 1
 				}
-				this.center = { x: 150, y: 140 }
+				this.center = { x: 250, y: 450 }
 				this.velocity = { x: 0, y: 0 }
 			}
 
 			//ball hits the paddel
 			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies.player, this.center)) {
 				var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
+				console.log(hitPos)
 				this.game.paddle.play()
 				release(this.velocity, hitPos)
-				this.velocity.y = -this.velocity.y
+				this.velocity.y = -this.velocity.y -0.05
 			}
 
 			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
@@ -178,21 +248,9 @@
 		}
 	}
 
-	function gameOver(ctx) {
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		ctx.fillText('GAME OVER', 40, 40)
-	}
-
-	function drawText(ctx, text, variable, left, top) {
-		ctx.font = "16px Arial"
-		ctx.fillStyle = "black"
-		ctx.fillText(text + variable, left, top)
-	}
-
 	var Brick = function(game, center) {
 		this.game = game
-		this.size = { x: 15, y: 7 }
+		this.size = { x: 20, y: 7 }
 		this.center = center
 	}
 	//
@@ -203,9 +261,9 @@
 
 	var drawBricks = function(game) {
 		var bricks = []
-		for (var i = 0; i < 100; i++) {
-			var x = 20 + (i % 25) * 20
-			var y = 30 + (i % 4) * 10
+		for (var i = 0; i < 540; i++) {
+			var x = 22 + (i % 20) * 24
+			var y = 40 + (i % 27) * 10
 			bricks.push(new Brick(game, { x: x, y: y}))
 		}
 		return bricks
@@ -218,31 +276,33 @@
 	}
 
 	var release = function(velocity, hitPos) {
+
 		if (velocity.x > 0) {
 			if (hitPos == 1) {
 				velocity.x = -velocity.x + 0.25
 			} else if (hitPos == 2) {
-				velocity.x = -velocity.x + 0.1
+				velocity.x = -velocity.x
 			} else if (hitPos == 3) {
-				velocity.x = -velocity.x - 0.1
+				velocity.x = -velocity.x - 0.25
 			} else if (hitPos == 4) {
-				velocity.x = velocity.x + 0.1
-			} else if (hitPos == 5) {
-				velocity.x = velocity.x + 0.25
-			} else {
 				velocity.x = velocity.x + 0.5
+			} else if (hitPos == 5) {
+				velocity.x = velocity.x + 0.75
+			} else {
+				velocity.x = velocity.x + 1
 			}
 		} else {
+			velocity.x = velocity.x
 			if (hitPos == 1) {
-				velocity.x = velocity.x -0.5
+				velocity.x = velocity.x - 1
 			} else if (hitPos == 2) {
-				velocity.x = velocity.x - 0.25
+				velocity.x = velocity.x - 0.75
 			} else if (hitPos == 3) {
-				velocity.x = velocity.x - 0.1
+				velocity.x = velocity.x - 0.5
 			} else if (hitPos == 4) {
-				velocity.x = -velocity.x + 0.1
+				velocity.x = -velocity.x + 0.25
 			} else if (hitPos == 5) {
-				velocity.x = -velocity.x - 0.1
+				velocity.x = -velocity.x
 			} else {
 				velocity.x = -velocity.x - 0.25
 			}
