@@ -1,31 +1,26 @@
 (function() {
 	var Game = function(canvasId) {
 		var canvas = document.getElementById(canvasId)
-		// var sf = window.devicePixelRatio
-		// var elWidth = canvas.width
-		// var elHeight = canvas.height
-		// canvas.width = elWidth * sf
-		// canvas.elHeight = elHeight * sf
 		var ctx = canvas.getContext("2d");
-		// ctx.canvas.height = window.innerHeight * 0.82;
 		var gameSize = { x: canvas.width, y: canvas.height }
-
-		//**************************************
-		this.canvas = canvas
-		this.score = 0
-		this.life = 3
-
-		//**************************************
-		this.levelColours = {
-			levelOne: 'blue',
-			levelTwo: 'red',
-			levelThree: 'green'
+		var levels = {
+			'One': '0',
+			'Two': '100',
+			'Three': '200',
+			'Four': '300',
+			'Five': '400',
 		}
-
+		var colours = {
+			levelOne: ['black' ,'#eee', 'grey'],
+			levelTwo: ['#35f2bf' ,'#ff3456', '#c61f3b'],
+			levelThree: ['#dbff3f' ,'#5f3fff', '#4027bc'],
+			levelFour: ['#ffb800' ,'#18bff7', '#1193bf'],
+			levelFive: ['#c92ded', '#eded2b', '#c6c623']
+		}
 		this.bodies = {
 			bricks: drawBricks(this),
 			player: new Player(this, gameSize),
-			ball: new Ball(this, gameSize, { x: 250, y: 450 }, { x: 0, y: 0})
+			ball: new Ball(this, gameSize, { x: 250, y: 450 })
 		}
 
 		//???????????????????????????????????????
@@ -57,9 +52,10 @@
 		this.paddle.setAttribute('src', 'sounds/bricks.wav')
 		this.gameOver.loop = false
 		// this.levelUp.loop = false
+
 		function play() {
 			self.update()
-			self.draw(ctx, gameSize)
+			self.draw(ctx, gameSize, canvas, levels, colours)
 		}
 
 		//??????????????????????????
@@ -68,103 +64,74 @@
 
 	Game.prototype = {
 		update: function() {
-			// console.log(ball.center.x > )
 			var ball = this.bodies.ball
 			this.bodies.bricks = this.bodies.bricks.filter(function(brick) {
 				return !collision(brick, ball)
 			})
 			this.bodies.player.update()
 			ball.update()
-			if (this.score == 400) {
-				this.bodies.player.size.x = 50
-			} else if (this.score == 300) {
-				this.bodies.player.size.x = 65
-			} else if (this.score == 200) {
-				this.bodies.player.size.x = 75
-			} else if (this.score == 100) {
-				this.bodies.player.size.x = 90
-			}
+			// if (this.score == 400) {
+			// 	this.bodies.player.size.x = 50
+			// } else if (this.score == 300) {
+			// 	this.bodies.player.size.x = 65
+			// } else if (this.score == 200) {
+			// 	this.bodies.player.size.x = 75
+			// } else if (this.score == 100) {
+			// 	this.bodies.player.size.x = 90
+			// }
 			// changeLevelUp(this.bodies)
 		},
 
-		draw: function(ctx, gameSize) {
-			//?????????????????????????????????????????
+		draw: function(ctx, gameSize, canvas, levels, colours) {
 			ctx.clearRect(0, 0, gameSize.x, gameSize.y)
-			drawText(ctx, "Score: ", this.score, 13, 20, this.score)
-			drawText(ctx, "Lives: ", this.life, this.canvas.width - 70, 20, this.score)
-			drawRect(ctx, this.bodies.ball, this.score)
-			drawRect(ctx, this.bodies.player, this.score)
-			for (var i = 0; i < this.bodies.bricks.length; i++) {
-				drawRect(ctx, this.bodies.bricks[i], this.score)
-			}
 
-			//**************************************
-			if (this.life == 0) {
-				ctx.font = "50px Arial"
-				if (this.score > 400) {
-					ctx.fillStyle = '#c92ded'
-				} else if (this.score > 300) {
-					ctx.fillStyle = '#ffb800'
-				} else if (this.score > 200) {
-					ctx.fillStyle = '#dbff3f'
-				} else if (this.score > 100) {
-					ctx.fillStyle = '#35f2bf'
-				}
-				ctx.fillText('GAME OVER', 100, 390)
-				this.gameOver.play()
+			var currentLevel = whichLevel(levels, this.bodies.player.score)
+			drawText(ctx, "Score: ", this.bodies.player.score, 13, 20, currentLevel, colours)
+			drawText(ctx, "Lives: ", this.bodies.player.life, gameSize.x - 70, 20, currentLevel, colours)
+
+			drawRect(ctx, this.bodies.ball, currentLevel, colours)
+			drawRect(ctx, this.bodies.player, currentLevel, colours)
+			for (var i = 0; i < this.bodies.bricks.length; i++) {
+				drawRect(ctx, this.bodies.bricks[i], currentLevel, colours)
 			}
-			if (this.score > 400) {
-				this.canvas.style.background = '#eded2b'
-				this.canvas.style.border = '8px solid #c6c623'
-			} else if (this.score > 300) {
-				this.canvas.style.background = '#18bff7'
-				this.canvas.style.border = '8px solid #1193bf'
-			} else if (this.score > 200) {
-				this.canvas.style.background = '#5f3fff'
-				this.canvas.style.border = '8px solid #4027bc'
-			} else if (this.score > 100) {
-				this.canvas.style.background = '#ff3456'
-				this.canvas.style.border = '8px solid #c61f3b'
-			}
-			if (this.score == 400) {
-				this.levelUp.play()
-			} else if (this.score == 300) {
-				this.levelUp.play()
-			} else if (this.score == 200) {
-				this.levelUp.play()
-			} else if (this.score == 100) {
-				this.levelUp.play()
-			}
+			changeLevel(ctx, canvas, colours, currentLevel, this.levelUp)
 		},
 	}
 
+	var whichLevel = function(levels, score) {
+		if (levels['Five'] < score){
+			return 'Five'
+		} else if (levels['Four'] < score){
+			return 'Four'
+		} else if (levels['Three'] < score){
+			return 'Three'
+		} else if (levels['Two'] < score){
+			return 'Two'
+		} else if (levels['One'] <= score){
+			return 'One'
+		} 
+	}
+
+	var changeLevel = function(ctx, canvas, colour, level, audio) {
+		var levelNum = "level" + level
+		ctx.fillStyle = colour[levelNum][0]
+		canvas.style.background = colour[levelNum][1]
+		canvas.style.border = '8px solid ' + colour[levelNum][2]
+		// if (level !== 'One') {
+		// 	audio.play()
+		// }
+	}
+
 	//does all the drawing
-	var drawRect = function(ctx, body, score) {
-		if (score > 400) {
-			ctx.fillStyle = '#c92ded'
-		} else if (score > 300) {
-			ctx.fillStyle = '#ffb800'
-		} else if (score > 200) {
-			ctx.fillStyle = '#dbff3f'
-		} else if (score > 100) {
-			ctx.fillStyle = '#35f2bf'
-		}
+	var drawRect = function(ctx, body, currentLevel, colour) {
+		ctx.fillStyle = colour["level" + currentLevel][0]
 		ctx.fillRect(body.center.x - body.size.x / 2,
 						body.center.y - body.size.y / 2,
 						body.size.x, body.size.y)
 	}
 
-	function drawText(ctx, text, variable, left, top, score) {
-		ctx.font = "16px Arial"
-		if (score > 400) {
-			ctx.fillStyle = '#c92ded'
-		} else if (score > 300) {
-			ctx.fillStyle = '#ffb800'
-		} else if (score > 200) {
-			ctx.fillStyle = '#dbff3f'
-		} else if (score > 100) {
-			ctx.fillStyle = '#35f2bf'
-		}
+	function drawText(ctx, text, variable, left, top, currentLevel, colour) {
+		ctx.fillStyle = colour["level" + currentLevel][0]
 		ctx.fillText(text + variable, left, top)
 	}
 
@@ -175,11 +142,12 @@
 	// }
 
 	var Player = function(game, gameSize) {
-		this.game = game
 		this.size = { x: 100, y: 10 }
 		this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 		this.keyboarder = new Keyboarder()
 		this.gameSize = gameSize
+		this.score = 0
+		this.life = 3
 	}
 
 	Player.prototype = {
@@ -189,17 +157,25 @@
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT)) {
 				this.center.x += 4
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
-				this.game.bodies.ball.velocity = { x: 2, y: -2 }
+				//*************************************
+				startBall.x = 2
+				startBall.y = -2
 			}
 		}
 	}
 
-	var Ball = function(game, gameSize, center, velocity) {
+	var startBall = {
+		x: 0,
+		y: 0
+	}
+
+	var Ball = function(game, gameSize, center) {
 		this.game = game
 		this.size = { x: 8, y: 8 }
 		this.center = center
-		this.velocity = velocity
+		this.velocity = startBall
 		this.gameSize = gameSize
+		this.radius = this.size.x / 2
 	}
 
 	Ball.prototype = {
@@ -208,13 +184,13 @@
 			this.center.y += this.velocity.y
 
 			//ball hits the ceiling
-			if(this.center.y < (this.size.x / 2)) {
+			if(this.center.y < this.radius) {
 				this.game.paddleAudio.play()
 				this.velocity.y = -this.velocity.y
 			}
 
 			//ball hits the walls
-			if(this.center.x > this.gameSize.x - (this.size.x / 2) || this.center.x < (this.size.x / 2)) {
+			if(this.center.x > this.gameSize.x - this.radius || this.center.x < this.radius) {
 				this.game.paddleAudio.play()
 				this.velocity.x = -this.velocity.x
 			}
@@ -222,30 +198,46 @@
 			//lost a life
 			if(this.center.y > this.gameSize.y) {
 				this.game.lostLife.play()
-				if (this.game.life > 0) {
-					this.game.life -= 1
+				if (this.life > 0) {
+					this.life -= 1
 				}
 				this.center = { x: 250, y: 450 }
-				this.velocity = { x: 0, y: 0 }
+				console.log(this.velocity)
+				this.velocity.x = 0
+				this.velocity.y = 0
+				console.log(this.velocity)
 			}
 
 			//ball hits the paddel
-			if (this.center.y == this.gameSize.y - (this.size.x / 2) && hitPaddle(this.game.bodies.player, this.center)) {
+			//*************************************
+			if (this.center.y == this.gameSize.y - this.radius && hitPaddle(this.game.bodies.player, this.center)) {
 				var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
-				console.log(hitPos)
 				this.game.paddle.play()
 				release(this.velocity, hitPos)
 				this.velocity.y = -this.velocity.y -0.05
 			}
 
+			//*************************************
 			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
 				if (collision(this.game.bodies.bricks[i], this)) {
-					this.game.score += 1
+					this.score += 1
 					this.game.brickAudio.play()
 					this.velocity.y = -this.velocity.y
 				}
 			}
 		}
+	}
+
+	var brickBallCollide = function(game) {
+		console.log(game)
+	}
+
+	var lifeDown = function(player) {
+		player.life += 1
+	}
+
+	var scored = function(player) {
+		player.score += 1
 	}
 
 	var Brick = function(game, center) {
@@ -276,7 +268,6 @@
 	}
 
 	var release = function(velocity, hitPos) {
-
 		if (velocity.x > 0) {
 			if (hitPos == 1) {
 				velocity.x = -velocity.x + 0.25
