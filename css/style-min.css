@@ -1,10 +1,13 @@
+body {
+  margin: 0px; }
+
 canvas {
   min-width: 500px;
-  background: #eee;
-  border: 8px solid black; }
+  background: #eee; }
 
 div {
-  height: 90vh;
+  background: lightgrey;
+  height: 100vh;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

@@ -2,7 +2,7 @@
 	var Game = function(canvasId) {
 		var canvas = document.getElementById(canvasId)
 		var ctx = canvas.getContext("2d");
-		var gameSize = { x: canvas.width, y: canvas.height }
+		this.gameSize = { x: canvas.width, y: canvas.height }
 		var levels = {
 			'One': '0',
 			'Two': '100',
@@ -17,11 +17,16 @@
 			levelFour: ['#ffb800' ,'#18bff7', '#1193bf'],
 			levelFive: ['#c92ded', '#eded2b', '#c6c623']
 		}
+
 		this.bodies = {
 			bricks: drawBricks(this),
-			player: new Player(this, gameSize),
-			ball: new Ball(this, gameSize, { x: 250, y: 450 })
+			player: new Player(this, this.gameSize),
+			ball: new Ball(this, this.gameSize, { x: 250, y: 450 })
 		}
+		this.score = 0
+		this.life = 3
+
+		var bg = document.getElementsByTagName('body')
 
 		//???????????????????????????????????????
 		var self = this
@@ -55,7 +60,7 @@
 
 		function play() {
 			self.update()
-			self.draw(ctx, gameSize, canvas, levels, colours)
+			self.draw(ctx, this.gameSize, canvas, levels, colours, bg)
 		}
 
 		//??????????????????????????
@@ -69,7 +74,7 @@
 				return !collision(brick, ball)
 			})
 			this.bodies.player.update()
-			ball.update()
+			ball.update(gameManager.ballHit(this))
 			// if (this.score == 400) {
 			// 	this.bodies.player.size.x = 50
 			// } else if (this.score == 300) {
@@ -82,19 +87,19 @@
 			// changeLevelUp(this.bodies)
 		},
 
-		draw: function(ctx, gameSize, canvas, levels, colours) {
-			ctx.clearRect(0, 0, gameSize.x, gameSize.y)
+		draw: function(ctx, gameSize, canvas, levels, colours, background) {
+			ctx.clearRect(0, 0, this.gameSize.x, this.gameSize.y)
 
-			var currentLevel = whichLevel(levels, this.bodies.player.score)
-			drawText(ctx, "Score: ", this.bodies.player.score, 13, 20, currentLevel, colours)
-			drawText(ctx, "Lives: ", this.bodies.player.life, gameSize.x - 70, 20, currentLevel, colours)
+			var currentLevel = whichLevel(levels, this.score)
+			drawText(ctx, "Score: ", this.score, 13, 20, currentLevel, colours)
+			drawText(ctx, "Lives: ", this.life, this.gameSize.x - 70, 20, currentLevel, colours)
 
 			drawRect(ctx, this.bodies.ball, currentLevel, colours)
 			drawRect(ctx, this.bodies.player, currentLevel, colours)
 			for (var i = 0; i < this.bodies.bricks.length; i++) {
 				drawRect(ctx, this.bodies.bricks[i], currentLevel, colours)
 			}
-			changeLevel(ctx, canvas, colours, currentLevel, this.levelUp)
+			changeLevel(ctx, canvas, colours, currentLevel, this.levelUp, background)
 		},
 	}
 
@@ -112,11 +117,12 @@
 		} 
 	}
 
-	var changeLevel = function(ctx, canvas, colour, level, audio) {
+	var changeLevel = function(ctx, canvas, colour, level, audio, background) {
 		var levelNum = "level" + level
 		ctx.fillStyle = colour[levelNum][0]
 		canvas.style.background = colour[levelNum][1]
-		canvas.style.border = '8px solid ' + colour[levelNum][2]
+		// background.style.backgroundColour = 'red'
+		// canvas.style.border = '8px solid ' + colour[levelNum][2]
 		// if (level !== 'One') {
 		// 	audio.play()
 		// }
@@ -124,14 +130,14 @@
 
 	//does all the drawing
 	var drawRect = function(ctx, body, currentLevel, colour) {
-		ctx.fillStyle = colour["level" + currentLevel][0]
+		// ctx.fillStyle = colour["level" + currentLevel][0]
 		ctx.fillRect(body.center.x - body.size.x / 2,
 						body.center.y - body.size.y / 2,
 						body.size.x, body.size.y)
 	}
 
 	function drawText(ctx, text, variable, left, top, currentLevel, colour) {
-		ctx.fillStyle = colour["level" + currentLevel][0]
+		// ctx.fillStyle = colour["level" + currentLevel][0]
 		ctx.fillText(text + variable, left, top)
 	}
 
@@ -141,13 +147,30 @@
 	// 	ctx.fillText('GAME OVER', 100, 100)
 	// }
 
+	var gameManager = {
+		ballHit: function(game){
+			return (game.bodies.ball.center.y == game.gameSize.y - game.bodies.ball.radius && hitPaddle(game.bodies.player, game.bodies.ball.center))
+		}
+		// && hitPaddle(game.bodies.player, game.bodies.ball.center)
+
+		// ballHit: function(game){
+		// 	console.log(game.bodies.player.center.x)
+		// 	console.log(game.bodies.ball.center.x)
+		// },
+		// true if 
+	}
+
+	// var gameManager = function(game) {
+	// 	this.game = game
+	// 	console.log(game.bodies)
+	// 	// this.payer = game.bodies
+	// }
+
 	var Player = function(game, gameSize) {
 		this.size = { x: 100, y: 10 }
 		this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 		this.keyboarder = new Keyboarder()
 		this.gameSize = gameSize
-		this.score = 0
-		this.life = 3
 	}
 
 	Player.prototype = {
@@ -158,8 +181,8 @@
 				this.center.x += 4
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
 				//*************************************
-				startBall.x = 2
-				startBall.y = -2
+				startBall.x = 1
+				startBall.y = -1
 			}
 		}
 	}
@@ -179,10 +202,7 @@
 	}
 
 	Ball.prototype = {
-		update: function() {
-			this.center.x += this.velocity.x
-			this.center.y += this.velocity.y
-
+		update: function(ballContact) {
 			//ball hits the ceiling
 			if(this.center.y < this.radius) {
 				this.game.paddleAudio.play()
@@ -198,46 +218,53 @@
 			//lost a life
 			if(this.center.y > this.gameSize.y) {
 				this.game.lostLife.play()
-				if (this.life > 0) {
-					this.life -= 1
-				}
+				lifeDown(this.game)
 				this.center = { x: 250, y: 450 }
-				console.log(this.velocity)
 				this.velocity.x = 0
 				this.velocity.y = 0
-				console.log(this.velocity)
 			}
-
 			//ball hits the paddel
 			//*************************************
-			if (this.center.y == this.gameSize.y - this.radius && hitPaddle(this.game.bodies.player, this.center)) {
-				var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
+			// if (this.center.y == this.gameSize.y - this.radius && hitPaddle(this.game.bodies.player, this.center)) {
+			// console.log(this.ballContact == true)
+			// console.log(this.ballContact)
+			// console.log(this.velocity.y)
+			// console.log(this.game.bodies.ball.center.y, this.game.gameSize.y)
+			if (ballContact) {
+				this.velocity.y = -this.velocity.y
+				// var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
 				this.game.paddle.play()
-				release(this.velocity, hitPos)
-				this.velocity.y = -this.velocity.y -0.05
+				// release(this.velocity, hitPos)
 			}
+			
+			this.center.x += this.velocity.x
+			this.center.y += this.velocity.y
 
+			//checks for hits a brick
 			//*************************************
 			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
 				if (collision(this.game.bodies.bricks[i], this)) {
 					this.score += 1
 					this.game.brickAudio.play()
 					this.velocity.y = -this.velocity.y
+					scored(this.game)
 				}
 			}
 		}
 	}
 
 	var brickBallCollide = function(game) {
-		console.log(game)
+		// console.log(game)
 	}
 
-	var lifeDown = function(player) {
-		player.life += 1
+	var lifeDown = function(game) {
+		if (game.life > 0) {
+			game.life -= 1
+		}
 	}
 
-	var scored = function(player) {
-		player.score += 1
+	var scored = function(game) {
+		game.score += 1
 	}
 
 	var Brick = function(game, center) {
