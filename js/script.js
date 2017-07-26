@@ -2,7 +2,6 @@
 	var Game = function(canvasId) {
 		var canvas = document.getElementById(canvasId)
 		var ctx = canvas.getContext("2d");
-		this.gameSize = { x: canvas.width, y: canvas.height }
 		var levels = {
 			'One': '0',
 			'Two': '100',
@@ -18,13 +17,15 @@
 			levelFive: ['#c92ded', '#eded2b', '#c6c623']
 		}
 
+		this.gameSize = { x: canvas.width, y: canvas.height }
 		this.bodies = {
 			bricks: drawBricks(this),
 			player: new Player(this, this.gameSize),
-			ball: new Ball(this, this.gameSize, { x: 250, y: 450 })
+			ball: new Ball(this, this.gameSize, { x: 250, y: 450 }, gameManager)
 		}
 		this.score = 0
 		this.life = 3
+		this.gameManager = gameManager
 
 		var bg = document.getElementsByTagName('body')
 
@@ -41,6 +42,7 @@
 			gameOver: 'sounds/over.wav',
 			background: 'sounds/game-over.wav'
 		}
+		
 		//initialize audio
 		this.brickAudio = document.createElement('audio')
 		this.paddleAudio = document.createElement('audio')
@@ -63,7 +65,6 @@
 			self.draw(ctx, this.gameSize, canvas, levels, colours, bg)
 		}
 
-		//??????????????????????????
 		setInterval(play, 10)
 	}
 
@@ -74,7 +75,7 @@
 				return !collision(brick, ball)
 			})
 			this.bodies.player.update()
-			ball.update(gameManager.ballHit(this))
+			ball.update()
 			// if (this.score == 400) {
 			// 	this.bodies.player.size.x = 50
 			// } else if (this.score == 300) {
@@ -150,14 +151,16 @@
 	var gameManager = {
 		ballHit: function(game){
 			return (game.bodies.ball.center.y == game.gameSize.y - game.bodies.ball.radius && hitPaddle(game.bodies.player, game.bodies.ball.center))
-		}
-		// && hitPaddle(game.bodies.player, game.bodies.ball.center)
+		},
+		brickHit: function(game){
+			for (var i = 0; i < game.bodies.bricks.length; i++) {
 
-		// ballHit: function(game){
-		// 	console.log(game.bodies.player.center.x)
-		// 	console.log(game.bodies.ball.center.x)
-		// },
-		// true if 
+				// not sure why I can't just do: return collision(game.bodies.bricks[i], game.bodies.ball)
+				if (collision(game.bodies.bricks[i], game.bodies.ball)) {
+					return true
+				}
+			}
+		}
 	}
 
 	// var gameManager = function(game) {
@@ -170,7 +173,6 @@
 		this.size = { x: 100, y: 10 }
 		this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 		this.keyboarder = new Keyboarder()
-		this.gameSize = gameSize
 	}
 
 	Player.prototype = {
@@ -181,8 +183,8 @@
 				this.center.x += 4
 			} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
 				//*************************************
-				startBall.x = 1
-				startBall.y = -1
+				startBall.x = 2
+				startBall.y = -2
 			}
 		}
 	}
@@ -192,17 +194,18 @@
 		y: 0
 	}
 
-	var Ball = function(game, gameSize, center) {
+	var Ball = function(game, gameSize, center, gameMan) {
 		this.game = game
 		this.size = { x: 8, y: 8 }
 		this.center = center
 		this.velocity = startBall
 		this.gameSize = gameSize
 		this.radius = this.size.x / 2
+		this.gameMan = gameMan
 	}
 
 	Ball.prototype = {
-		update: function(ballContact) {
+		update: function() {
 			//ball hits the ceiling
 			if(this.center.y < this.radius) {
 				this.game.paddleAudio.play()
@@ -230,25 +233,23 @@
 			// console.log(this.ballContact)
 			// console.log(this.velocity.y)
 			// console.log(this.game.bodies.ball.center.y, this.game.gameSize.y)
-			if (ballContact) {
+			if (this.gameMan.ballHit(this.game)) {
 				this.velocity.y = -this.velocity.y
 				// var hitPos = Math.round((this.center.x - this.game.bodies.player.center.x)/this.game.bodies.player.size.x*6)+4
 				this.game.paddle.play()
 				// release(this.velocity, hitPos)
 			}
-			
+
+			//not sure why can this not be at the top??
 			this.center.x += this.velocity.x
 			this.center.y += this.velocity.y
 
 			//checks for hits a brick
-			//*************************************
-			for (var i = 0; i < this.game.bodies.bricks.length; i++) {
-				if (collision(this.game.bodies.bricks[i], this)) {
-					this.score += 1
-					this.game.brickAudio.play()
-					this.velocity.y = -this.velocity.y
-					scored(this.game)
-				}
+			if (this.gameMan.brickHit(this.game)) {
+				this.score += 1
+				this.game.brickAudio.play()
+				this.velocity.y = -this.velocity.y
+				scored(this.game)
 			}
 		}
 	}
