@@ -9,6 +9,30 @@
 	],
 "creatorBuild": "25813",
 "files": {
+	"\/.idea\/break-out.iml": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/.idea\/break-out.iml",
+		"oF": 0
+		},
+	"\/.idea\/modules.xml": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/.idea\/modules.xml",
+		"oF": 0
+		},
+	"\/.idea\/vcs.xml": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/.idea\/vcs.xml",
+		"oF": 0
+		},
+	"\/.idea\/workspace.xml": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/.idea\/workspace.xml",
+		"oF": 0
+		},
 	"\/Blip_Select3.m4a": {
 		"ft": 8192,
 		"oA": 2,
@@ -53,7 +77,7 @@
 	"\/js\/script.js": {
 		"ft": 64,
 		"mi": 1,
-		"oA": 0,
+		"oA": 1,
 		"oAP": "\/js\/script-min.js",
 		"oF": 0,
 		"sC": 1,
@@ -173,16 +197,16 @@
 		"oAP": "\/sounds\/paddle2.wav",
 		"oF": 0
 		},
-	"\/sounds\/paddle3.wav": {
-		"ft": 8192,
-		"oA": 2,
-		"oAP": "\/sounds\/paddle3.wav",
-		"oF": 0
-		},
 	"\/sounds\/wall-bounce.wav": {
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/sounds\/wall-bounce.wav",
+		"oF": 0
+		},
+	"\/sounds\/wall.wav": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/sounds\/wall.wav",
 		"oF": 0
 		},
 	"\/sounds\/wall10.wav": {
