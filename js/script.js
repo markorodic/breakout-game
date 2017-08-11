@@ -20,8 +20,9 @@
         function playGame() {
 			self.update()
 			self.draw(ctx, gameSize, canvas)
+            requestAnimationFrame(playGame)
 		}
-		setInterval(playGame, 10)
+		playGame()
 	}
 
 	Game.prototype = {
@@ -145,6 +146,7 @@
         window.onkeyup = function(e) {
             keyState[e.keyCode] = false
         }
+        console.log('inside')
 
         this.isDown = function(keyCode) {
             return keyState[keyCode] === true
