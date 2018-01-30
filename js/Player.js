@@ -7,9 +7,17 @@ var Player = function(game, gameSize) {
 Player.prototype = {
 	update: function() {
 		if (this.keyboarder.isDown(this.keyboarder.KEYS.LEFT)) {
-			this.center.x -= 4
+			if (this.center.x < 47) {
+				this.center.x
+			} else {
+				this.center.x -= 4
+			}
 		} else if (this.keyboarder.isDown(this.keyboarder.KEYS.RIGHT)) {
-			this.center.x += 4
+			if (this.center.x > 447) {
+				this.center.x
+			} else {
+				this.center.x += 4
+			}
 		} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
 			//*************************************
 			startBall.x = 2
