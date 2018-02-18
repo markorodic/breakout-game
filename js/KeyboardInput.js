@@ -1,4 +1,4 @@
-var Keyboarder = function() {
+var KeyboardInput = function() {
     var keyState = {}
     window.onkeydown = function(e) {
         keyState[e.keyCode] = true
@@ -9,5 +9,5 @@ var Keyboarder = function() {
     this.isDown = function(keyCode) {
         return keyState[keyCode] === true
     }
-    this.KEYS = { LEFT: 37, RIGHT: 39, SPACE: 32 }
+    this.KEY = { LEFT: 37, RIGHT: 39, SPACE: 32 }
 }
