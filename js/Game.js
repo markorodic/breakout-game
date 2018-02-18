@@ -8,7 +8,7 @@ var Game = function(canvasId) {
     this.bodies = {
         bricks: drawToScreen.drawBricks(this),
         player: new Player(this, gameSize),
-        ball: new Ball(this, gameSize, { x: 250, y: 450 })
+        ball: new Ball(this, gameSize, { x: 200, y: 400 })
     }
     this.score = 0
     this.life = 3
@@ -30,17 +30,15 @@ Game.prototype = {
 		this.bodies.player.update()
 		ball.update()
 	},
-	draw: function(ctx, gameSize, canvas) {
-		ctx.clearRect(0, 0, gameSize.x, gameSize.y)
-
-        var currentLevel = whichLevel(levels, this.score)
-		drawToScreen.drawText(ctx, "Score: ", this.score, 13, 20)
-        drawToScreen.drawText(ctx, "Lives: ", this.life, gameSize.x - 47, 20)
-        drawToScreen.drawRect(ctx, this.bodies.ball, currentLevel, colours)
-        drawToScreen.drawRect(ctx, this.bodies.player, currentLevel, colours)
-		for (var i = 0; i < this.bodies.bricks.length; i++) {
-            drawToScreen.drawRect(ctx, this.bodies.bricks[i], currentLevel, colours)
-		}
-		changeLevel(ctx, canvas, colours, currentLevel)
-	},
+    draw: function(ctx, gameSize, canvas) {
+        ctx.clearRect(0, 0, gameSize.x, gameSize.y)
+        drawToScreen.drawText(ctx, this.score, 115, 50)
+        drawToScreen.drawText(ctx, this.life, gameSize.x - 140, 50)
+        drawToScreen.drawGap(ctx)
+        drawToScreen.drawRect(ctx, this.bodies.ball, colours.rowSix)
+        drawToScreen.drawRect(ctx, this.bodies.player, colours.rowSix)
+        for (var i = 0; i < this.bodies.bricks.length; i++) {
+            drawToScreen.drawRect(ctx, this.bodies.bricks[i], this.bodies.bricks[i].colour)
+        }
+    },
 }

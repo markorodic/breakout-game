@@ -1,6 +1,6 @@
 var Ball = function(game, gameSize, center) {
 		this.game = game
-		this.size = { x: 8, y: 8 }
+		this.size = { x: 6, y: 6 }
 		this.center = center
 		this.velocity = startBall
 		this.gameSize = gameSize

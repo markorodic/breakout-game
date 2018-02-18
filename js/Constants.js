@@ -19,12 +19,31 @@ var levels = {
     'Four': '300',
     'Five': '400',
 }
+var whichColour = function(xPostion) {
+    switch (xPostion) {
+        case 105:
+            return colours.rowSix
+        case 115:
+            return colours.rowFive
+        case 125:
+            return colours.rowFour
+        case 135:
+            return colours.rowThree
+        case 145:
+            return colours.rowTwo
+        case 155:
+            return colours.rowOne
+        break;
+    }
+}
+
 var colours = {
-    levelOne: ['black' ,'#eee', 'grey'],
-    levelTwo: ['#35f2bf' ,'#ff3456', '#c61f3b'],
-    levelThree: ['#dbff3f' ,'#5f3fff', '#4027bc'],
-    levelFour: ['#ffb800' ,'#18bff7', '#1193bf'],
-    levelFive: ['#c92ded', '#eded2b', '#c6c623']
+    rowOne: '#434DC5',
+    rowTwo: '#4B9F4C',
+    rowThree: '#A2A136',
+    rowFour: '#B37938',
+    rowFive: '#C46C40',
+    rowSix: '#C6494B',
 }
 var whichLevel = function(levels, score) {
     if (levels['Five'] < score){
@@ -37,14 +56,5 @@ var whichLevel = function(levels, score) {
         return 'Two'
     } else if (levels['One'] <= score){
         return 'One'
-    }
-}
-var changeLevel = function(ctx, canvas, colour, level) {
-    var levelNum = "level" + level
-    var bg = document.getElementsByTagName('body')
-    ctx.fillStyle = colour[levelNum][0]
-    canvas.style.bg = colour[levelNum][1]
-    if (level !== 'One') {
-        audio['levelUp'].play()
     }
 }

@@ -1,5 +1,5 @@
 var Player = function(game, gameSize) {
-	this.size = { x: 100, y: 10 }
+	this.size = { x: 60, y: 7 },
 	this.center = { x: gameSize.x / 2, y: gameSize.y-2 }
 	this.keyboarder = new Keyboarder()
 }
@@ -21,7 +21,7 @@ Player.prototype = {
 		} else if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
 			//*************************************
 			startBall.x = 2
-			startBall.y = -2
+			startBall.y = 2
 		}
 	}
 }
