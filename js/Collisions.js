@@ -1,6 +1,6 @@
 var collisionDetection = {
         ballHit: function(game, ball, gameSize){
-            return (ball.center.y == gameSize.y - ball.radius && this.hitPaddle(game.bodies.player, ball.center))
+            return (ball.center.y >= gameSize.y - ball.radius && this.hitPaddle(game.bodies.player, ball.center))
         },
         hitPaddle: function(paddle, ballCenter) {
             return ((paddle.center.x - paddle.size.x / 2) < ballCenter.x && ballCenter.x < (paddle.center.x + paddle.size.x / 2))
