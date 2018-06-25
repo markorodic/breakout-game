@@ -1,9 +1,9 @@
-var Paddle = function(game, gameSize,) {
+var Paddle = function(gameSize) {
 	this.size = {
         x: 60,
         y: 7
     },
-	this.center = {
+	this.position = {
 		x: gameSize.x / 2,
 		y: gameSize.y-2
 	},
@@ -15,16 +15,16 @@ var Paddle = function(game, gameSize,) {
 Paddle.prototype = {
 	update: function(ball) {
 		if (this.arrowKey.isDown(this.arrowKey.KEY.LEFT)) {
-			if (this.center.x < this.size.x / 2) {
-				this.center.x
+			if (this.position.x < this.size.x / 2) {
+				this.position.x
 			} else {
-				this.center.x -= this.velocity
+				this.position.x -= this.velocity
 			}
 		} else if (this.arrowKey.isDown(this.arrowKey.KEY.RIGHT)) {
-			if (this.center.x > this.gameSize.x - this.size.x / 2) {
-				this.center.x
+			if (this.position.x > this.gameSize.x - this.size.x / 2) {
+				this.position.x
 			} else {
-				this.center.x += this.velocity
+				this.position.x += this.velocity
 			}
 		} else if (this.arrowKey.isDown(this.arrowKey.KEY.SPACE))
 			if (ball.velocity.x == 0){

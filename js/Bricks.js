@@ -1,6 +1,6 @@
-var Brick = function(game, center, colour) {
+var Brick = function(game, position, colour) {
     this.game = game
     this.size = { x: 32, y: 10 }
-    this.center = center
+    this.position = position
 	this.colour = colour
 }

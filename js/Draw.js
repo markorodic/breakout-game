@@ -1,8 +1,8 @@
 var drawToScreen = {
     drawRect: function (ctx, body, colour) {
         ctx.fillStyle = colour
-        ctx.fillRect(body.center.x - body.size.x / 2,
-        body.center.y - body.size.y / 2,
+        ctx.fillRect(body.position.x - body.size.x / 2,
+        body.position.y - body.size.y / 2,
         body.size.x, body.size.y)
     },
     drawGap: function (ctx) {
